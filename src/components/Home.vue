@@ -20,13 +20,14 @@
           active-text-color="#409EFF"
           :collapse='isCollapse'
           router
+          :default-active='activeItem'
         >
           <el-submenu :index="item.id + ''" v-for='item in menuList' :key='item.id'>
             <template slot="title">
               <i :class="iconsObj[item.id]"></i>
               <span>{{item.authName}}</span>
             </template>
-            <el-menu-item :index="'/' + child.path" v-for='child in item.children' :key='child.id'>
+            <el-menu-item :index="'/' + child.path" v-for='child in item.children' :key='child.id' @click="activeMenuItem(`/${child.path}`)">
               <i class="el-icon-menu"></i>
               <span>{{child.authName}}</span>
             </el-menu-item>
@@ -48,6 +49,7 @@ export default {
     return {
       menuList: [],
       isCollapse: false,
+      activeItem: '',
       iconsObj: {
         125: 'iconfont icon-user',
         103: 'iconfont icon-tijikongjian',
@@ -59,6 +61,7 @@ export default {
   },
   created () {
     this.getMenuList()
+    this.activeItem = window.sessionStorage.getItem('activeIndex')
   },
   methods: {
     logout () {
@@ -75,6 +78,10 @@ export default {
     },
     toggleCollapse () {
       this.isCollapse = !this.isCollapse
+    },
+    activeMenuItem (activeIndex) {
+      window.sessionStorage.setItem('activeIndex', activeIndex)
+      this.activeItem = activeIndex
     }
   }
 }
