@@ -38,13 +38,13 @@
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-tooltip class="item" effect="dark" content="编辑" placement="top" :enterable='false'>
-              <el-button type="primary" icon="el-icon-edit" size='mini' @click='editDialogShow(scope.row)'></el-button>
+              <el-button type="primary" icon="el-icon-edit" size='mini' @click='editDialogShow(scope.row)'>编辑</el-button>
             </el-tooltip>
             <el-tooltip class="item" effect="dark" content="删除" placement="top" :enterable='false'>
-              <el-button type="danger" icon="el-icon-delete" size='mini' @click='delUser(scope.row.id)'></el-button>
+              <el-button type="danger" icon="el-icon-delete" size='mini' @click='delUser(scope.row.id)'>删除</el-button>
             </el-tooltip>
             <el-tooltip class="item" effect="dark" content="权限" placement="top" :enterable='false'>
-              <el-button type="warning" icon="el-icon-setting" size='mini'></el-button>
+              <el-button type="warning" icon="el-icon-setting" size='mini' @click='roleMatch(scope.row)'>分配角色</el-button>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -106,6 +106,31 @@
         </span>
       </el-dialog>
     </el-card>
+    <!-- 设置用户权限对话框 -->
+    <el-dialog
+      title="提示"
+      :visible.sync="dialogVisible"
+      width="50%"
+      @close='closeRoleDlog'>
+      <div>
+        <p>这是用户名称： {{userInfo.username}}</p>
+        <p>这是用户角色： {{userInfo.role_name}}</p>
+        <p>分配新角色：
+          <el-select v-model="selecteVal" placeholder="请选择">
+            <el-option
+              v-for="item in roleList"
+              :key="item.id"
+              :label="item.roleName"
+              :value="item.id">
+            </el-option>
+          </el-select>
+        </p>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="saveRoleInfo">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -134,6 +159,10 @@ export default {
       total: 0,
       addDialogVisible: false,
       editDialogVisible: false,
+      dialogVisible: false,
+      userInfo: {},
+      roleList: [],
+      selecteVal: '',
       queryInfo: {
         query: '', // 查询参数
         pagenum: 1, // 当前页码
@@ -285,6 +314,33 @@ export default {
       }
       this.$message.success('删除成功')
       this.getUserList()
+    },
+    async roleMatch (row) {
+      this.userInfo = row
+      const { data: res } = await this.$http.get('roles')
+      if (res.meta.status !== 200) {
+        return this.$message.error('获取角色列表失败')
+      }
+      this.roleList = res.data
+      this.dialogVisible = true
+    },
+    async saveRoleInfo () {
+      if (!this.selecteVal) {
+        return this.$message.error('请选择新的角色')
+      }
+      const { data: res } = await this.$http.put(`users/${this.userInfo.id}/role`, {
+        rid: this.selecteVal
+      })
+      if (res.meta.status !== 200) {
+        return this.$message.error('角色设置失败')
+      }
+      this.getUserList()
+      this.$message.success('角色设置成功')
+      this.dialogVisible = false
+    },
+    closeRoleDlog () {
+      this.selecteVal = ''
+      this.userInfo = {}
     }
   }
 }
