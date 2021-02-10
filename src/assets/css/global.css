@@ -12,3 +12,24 @@ html, body, #app {
 .el-table {
   margin-top: 20px;
 }
+
+.el-popper,.el-cascader__dropdown {
+  height: 300px !important;
+  overflow: hidden;
+}
+.el-cascader-panel {
+  height: 300px !important;
+  overflow: auto !important;
+}
+
+.ql-toolbar.ql-snow + .ql-container.ql-snow {
+  min-height: 300px !important;
+}
+
+.el-steps {
+  margin: 15px;
+}
+
+.el-alert {
+  margin-bottom: 15px;
+}
